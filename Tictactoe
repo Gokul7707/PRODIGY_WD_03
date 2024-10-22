@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            background-color: #444;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            background-color: #61dafb;
+            border: 2px solid #282c34;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cell:hover {
+            background-color: #21a1f1;
+        }
+
+        .status {
+            margin: 20px 0;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .restart {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #61dafb;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .restart:hover {
+            background-color: #21a1f1;
+        }
+
+        .winning-cell {
+            animation: winAnimation 0.5s forwards;
+        }
+
+        @keyframes winAnimation {
+            0% {
+                background-color: transparent;
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .x {
+            color: rgb(199, 21, 133);
+        }
+
+        .o {
+            color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="status" id="status">Player X's turn</div>
+        <div class="board" id="board">
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+        </div>
+        <button class="restart" id="restartButton">Restart</button>
+    </div>
+
+    <script>
+        const statusText = document.getElementById('status');
+        const cells = document.querySelectorAll('[data-cell]');
+        const restartButton = document.getElementById('restartButton');
+
+        let isXNext = true;
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let isGameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function handleClick(event) {
+            const cell = event.target;
+            const index = [...cells].indexOf(cell);
+
+            if (board[index] || !isGameActive) {
+                return;
+            }
+
+            board[index] = isXNext ? 'X' : 'O';
+            cell.textContent = board[index];
+            cell.classList.add(isXNext ? 'x' : 'o');
+            checkWinner();
+            isXNext = !isXNext;
+            statusText.textContent = isGameActive ? `Player ${isXNext ? 'X' : 'O'}'s turn` : '';
+        }
+
+        function checkWinner() {
+            let roundWon = false;
+            let winningCells = [];
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (board[a] && (board[a] === board[b]) && (board[a] === board[c])) {
+                    roundWon = true;
+                    winningCells = [a, b, c];
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                winningCells.forEach(index => {
+                    cells[index].classList.add('winning-cell');
+                });
+                statusText.textContent = `Player ${isXNext ? 'X' : 'O'} wins!`;
+                isGameActive = false;
+                return;
+            }
+
+            if (!board.includes('')) {
+                statusText.textContent = 'Draw!';
+                isGameActive = false;
+                return;
+            }
+        }
+
+        function restartGame() {
+            isGameActive = true;
+            board = ['', '', '', '', '', '', '', '', ''];
+            statusText.textContent = "Player X's turn";
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.classList.remove('winning-cell', 'x', 'o');
+            });
+            isXNext = true;
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleClick);
+        });
+
+        restartButton.addEventListener('click', restartGame);
+    </script>
+</body>
+
+</html>
